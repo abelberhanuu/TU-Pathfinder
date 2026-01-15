@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Towson IS PathFinder</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}" />
+</head>
+<body>
+  <main class="container">
+    <header class="hero glass-card">
+      <div>
+        <p class="eyebrow">Towson University • Information Systems</p>
+        <h1>Towson IS PathFinder</h1>
+        <p class="subtitle">
+          Build an optimized, prerequisite-safe semester plan for every Towson IS track with a modern, glassy UI.
+        </p>
+      </div>
+    </header>
+
+    <section class="glass-card form-card">
+      <h2>Plan your path</h2>
+      <p class="helper">Enter completed courses, select a track, and choose how you want results displayed.</p>
+      <form action="{{ url_for('index') }}" method="post" class="form-grid">
+        <label class="field">
+          <span>Track</span>
+          <select name="track" required>
+            {% for option in tracks %}
+            <option value="{{ option }}" {% if option == selected_track %}selected{% endif %}>{{ option }}</option>
+            {% endfor %}
+          </select>
+        </label>
+
+        <label class="field">
+          <span>Max credits per semester</span>
+          <input type="number" name="max_credits" min="12" max="21" value="{{ max_credits }}" />
+          <small>Min 12, max 21. Default 18.</small>
+        </label>
+
+        <label class="field full">
+          <span>Completed courses</span>
+          <textarea
+            name="completed"
+            rows="4"
+            placeholder="Example: CIS 211, COSC 175, ENGL 102"
+          >{{ completed_raw }}</textarea>
+          <small>Paste a comma-separated list (course codes only).</small>
+        </label>
+
+        <div class="field full">
+          <span>Mode</span>
+          <div class="toggle-group">
+            <label>
+              <input type="radio" name="mode" value="plan" {% if selected_mode == 'plan' %}checked{% endif %} />
+              Full Plan
+            </label>
+            <label>
+              <input type="radio" name="mode" value="eligible" {% if selected_mode == 'eligible' %}checked{% endif %} />
+              Eligible Courses Only
+            </label>
+          </div>
+        </div>
+
+        <div class="button-row">
+          <button type="submit" class="primary">Generate Plan</button>
+          <button type="reset" class="ghost">Reset</button>
+        </div>
+      </form>
+    </section>
+
+    {% if result %}
+    <section class="glass-card">
+      <div class="summary-grid">
+        <div>
+          <p class="eyebrow">Selected Track</p>
+          <p class="metric">{{ result.track }}</p>
+        </div>
+        <div>
+          <p class="eyebrow">Credits Cap</p>
+          <p class="metric">{{ result.max_credits }}</p>
+        </div>
+        <div>
+          <p class="eyebrow">Mode</p>
+          <p class="metric">{{ 'Full Plan' if result.mode == 'plan' else 'Eligible Courses Only' }}</p>
+        </div>
+      </div>
+    </section>
+
+    {% if result.unknown %}
+    <section class="glass-card warning">
+      <h2>Unknown course codes</h2>
+      <p>These entries were not found in the curriculum file and were ignored.</p>
+      <div class="tag-list">
+        {% for course in result.unknown %}
+        <span class="tag">{{ course }}</span>
+        {% endfor %}
+      </div>
+    </section>
+    {% endif %}
+
+    {% if result.warnings %}
+    <section class="glass-card warning">
+      <h2>Warnings (not enforced)</h2>
+      <ul class="warning-list">
+        {% for warning in result.warnings %}
+        <li>{{ warning }}</li>
+        {% endfor %}
+      </ul>
+    </section>
+    {% endif %}
+
+    <section class="glass-card">
+      <div class="section-header">
+        <h2>Eligible courses</h2>
+        <button type="button" class="ghost" id="copyPlan">Copy Plan</button>
+      </div>
+      {% if result.eligible %}
+      <div class="eligible-grid">
+        {% for course in result.eligible %}
+        <article class="pill-card">
+          <div>
+            <h3>{{ course.code }}</h3>
+            <p class="muted">{{ course.name }}</p>
+          </div>
+          <span class="badge">{{ course.credits }} cr</span>
+          {% if course.prereqs %}
+          <p class="helper">{{ course.prereqs | join(' • ') }}</p>
+          {% endif %}
+        </article>
+        {% endfor %}
+      </div>
+      {% else %}
+      <p>No eligible courses found. Review missing prerequisites below.</p>
+      {% endif %}
+    </section>
+
+    {% if result.mode == 'plan' %}
+    <section class="glass-card">
+      <h2>Semester-by-semester plan</h2>
+      {% if result.plan %}
+        {% for semester in result.plan %}
+        <div class="semester">
+          <div class="semester-header">
+            <h3>{{ semester.name }}</h3>
+            <span>{{ semester.credits }} credits</span>
+          </div>
+          <ul>
+            {% for course in semester.courses %}
+            <li>{{ course.code }} - {{ course.name }} ({{ course.credits }} cr)</li>
+            {% endfor %}
+          </ul>
+        </div>
+        {% endfor %}
+      {% else %}
+      <p>No plan could be generated with the current inputs.</p>
+      {% endif %}
+    </section>
+    {% endif %}
+
+    <section class="glass-card">
+      <h2>Remaining requirements</h2>
+      {% for group in result.remaining_requirements %}
+      <div class="requirement-group">
+        <h3>{{ group.group }}</h3>
+        {% if group.missing %}
+        <div class="tag-list">
+          {% for course in group.missing %}
+          <span class="tag">{{ course }}</span>
+          {% endfor %}
+        </div>
+        {% else %}
+        <p>Requirement satisfied.</p>
+        {% endif %}
+      </div>
+      {% endfor %}
+    </section>
+
+    <textarea id="planText" hidden>
+{% if result.mode == 'plan' %}
+{% for semester in result.plan %}{{ semester.name }} ({{ semester.credits }} credits)
+{% for course in semester.courses %}- {{ course.code }}: {{ course.name }} ({{ course.credits }} cr)
+{% endfor %}
+{% endfor %}
+{% else %}
+Eligible Courses
+{% for course in result.eligible %}- {{ course.code }}: {{ course.name }} ({{ course.credits }} cr)
+{% endfor %}
+{% endif %}
+Remaining Requirements
+{% for group in result.remaining_requirements %}{{ group.group }}:
+{% if group.missing %}{% for course in group.missing %}- {{ course }}
+{% endfor %}{% else %}- Satisfied
+{% endif %}
+{% endfor %}
+    </textarea>
+    {% endif %}
+  </main>
+
+  <script>
+    const copyButton = document.getElementById('copyPlan');
+    if (copyButton) {
+      copyButton.addEventListener('click', async () => {
+        const planText = document.getElementById('planText');
+        if (!planText) return;
+        try {
+          await navigator.clipboard.writeText(planText.value.trim());
+          copyButton.textContent = 'Copied!';
+          setTimeout(() => {
+            copyButton.textContent = 'Copy Plan';
+          }, 2000);
+        } catch (error) {
+          copyButton.textContent = 'Copy failed';
+        }
+      });
+    }
+  </script>
+</body>
+</html>
