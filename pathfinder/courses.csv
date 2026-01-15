@@ -1,0 +1,82 @@
+course_code,course_name,credits,category,track
+CIS 211,Fundamentals of Info Sys and Tech,3,IS Core,All
+COSC 175,General Computer Science,4,IS Core,All
+COSC 236,Introduction to Computer Science I,4,IS Core,All
+COSC 237,Introduction to Computer Science II,4,IS Core,All
+ITEC 231,Fundamentals of Web Technologies,3,IS Core,All
+CIS 239,Enterprise Systems & Architecture,3,IS Core,All
+CIS 350,Telecommunications,3,IS Core,All
+CIS 377,Introduction to Cybersecurity,3,IS Core,All
+CIS 379,Systems Analysis & Design,3,IS Core,All
+CIS 435,Human Computer Interaction,3,IS Core,All
+CIS 458,Organizational Database Management,3,IS Core,All
+CIS 479,Software Project Management,3,IS Core,All
+
+CIS 475,Information Systems Capstone,3,Capstone,All
+
+MATH 231,Basic Statistics,3,Math,All
+MATH 263,Discrete Mathematics,3,Math,All
+MATH 211,Calculus for Applications,3,Math,All
+MATH 273,Calculus I,4,Math,All
+MATH 115,College Algebra,3,Prereq Only,All
+MATH 117,Precalculus,3,Prereq Only,All
+MATH 119,Precalculus,3,Prereq Only,All
+PLACEMENT,Math Placement Exam,0,Prereq Only,All
+
+ENGL 102,English Composition,3,Core,All
+ENGL 317,Writing for Business & Industry (Core 9),3,Core,All
+COSC 418,Ethical/Societal Concerns CS (Core 14),3,Core,All
+
+CIS 328,Introduction to Data Analytics,3,Track/Core Crossover,All
+CIS 334,Data Organization,3,Track/Core Crossover,All
+COSC 336,Data Structures,4,Track/Core Crossover,All
+ITEC 336,Legal & Policy Issue in IT,3,Track,Data Analytics
+CIS 428,Text Analytics,3,Track,Data Analytics
+CIS 468,Data Mining & Visual Analytics,3,Track,Data Analytics
+
+COSC 412,Software Engineering,3,Track,Systems
+COSC 436,Object-Oriented Design/Programming,3,Track,Systems
+COSC 484,Web Programming,3,Track,Systems
+
+ART 102,2D Process for Non-Art Majors,3,Track,Interface Design
+ART 103,2D Process,3,Track,Interface Design
+ART 217,Image Making: Digital Process,3,Track,Interface Design
+CIS 445,Universal Usability,3,Track,Interface Design
+ART 365,Design for the WWW,3,IS Elective,Interface Design
+DFST 101,Intro to Deaf Studies,3,IS Elective,Interface Design
+
+ACCT 201,Principles of Financial Accounting,3,Track,Business
+ECON 201,Microeconomics,3,Track,Business
+ACCT 202,Principles of Managerial Accounting,3,Track Pair,Business
+ACCT 301,Intermediate Accounting,3,Track Pair,Business
+ACCT 341,Management Accounting I,3,Track Pair,Business
+MKTG 341,Marketing and Creativity,3,Track Pair,Business
+MNGT 361,Leadership & Management,3,Track Pair,Business
+MNGT 395,Management of Organizational Behavior,3,Track Pair,Business
+HLTH 207,Health Care in the US,3,Track Pair,Business
+HCMN 305,Health Administration,3,Track Pair,Business
+ECON 205,Intro Economics (alt prereq),3,Prereq Only,Business
+MATH 330,Advanced Stats (alt prereq),3,Prereq Only,Business
+
+CIS 212,Intro to Business Programming,3,IS Elective,Systems
+CIS 265,Visual Basic,3,IS Elective,All
+CIS 397,Internship in IS,3,IS Elective,All
+CIS 425,Selected Topics in IS,3,IS Elective,Systems
+CIS 426,Gaming Interface Design,3,IS Elective,All
+CIS 433,Selected Topics in IS,3,IS Elective,All
+CIS 436,E-Government,3,IS Elective,All
+CIS 440,E-Commerce / Systems Development for E-Commerce,3,IS Elective,Business
+CIS 495,Independent Study in IS,3,IS Elective,All
+ITEC 345,Scripting Languages,3,IS Elective,Systems
+ITEC 423,Emerging Internet Technologies,3,IS Elective,Systems
+ITEC 427,Cloud Computing,3,IS Elective,All
+
+COSC 111,Computer Science I (prereq-only),4,Prereq Only,All
+ITEC 411,Special Topic / Alt prereq (prereq-only),3,Prereq Only,All
+PROGRAM_EXP,Programming Experience,0,Prereq Only,All
+INSTR_CONSENT,Instructor Consent,0,Constraint,All
+SOPHOMORE, Sophomore Standing,0,Constraint,All
+JUNIOR_SENIOR, Junior/Senior Standing,0,Constraint,All
+SENIOR, Senior Standing,0,Constraint,All
+GPA_275, Minimum GPA 2.75,0,Constraint,All
+IS_9_UNITS, 9 units of IS completed,0,Constraint,All
