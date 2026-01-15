@@ -1,0 +1,99 @@
+{
+  "COSC 236": { "all": ["COSC 175"] },
+  "COSC 237": { "all": ["COSC 236"] },
+  "ITEC 231": { "all": ["CIS 211"] },
+  "CIS 239": { "all": ["CIS 211", "COSC 236"] },
+  "CIS 350": { "all": ["CIS 239"] },
+  "CIS 379": { "all": ["CIS 211"] },
+  "CIS 435": { "all": ["CIS 379"] },
+  "CIS 458": { "all": ["MATH 263"] },
+  "CIS 479": { "all": ["CIS 379"] },
+  "CIS 475": { "all": ["CIS 379"] },
+
+  "CIS 377": { "constraints": ["SOPHOMORE"], "notes": "Sophomore standing required." },
+
+  "ENGL 317": { "all": ["ENGL 102"] },
+  "COSC 418": { "all": ["ENGL 317"] },
+
+  "MATH 211": {
+    "any": ["MATH 115", "MATH 117", "MATH 119", "PLACEMENT"],
+    "notes": "MATH 115 only accepted for MATH 211 (not MATH 273)."
+  },
+  "MATH 273": {
+    "any": ["MATH 117", "MATH 119", "PLACEMENT"]
+  },
+
+  "CIS 328": {
+    "all": ["CIS 211"],
+    "notes": "Some track sheets list additional math/econ alternatives; Business elective version is encoded separately below."
+  },
+
+  "CIS 334": { "all": ["COSC 237"] },
+  "COSC 336": { "all": ["COSC 237"] },
+
+  "CIS 428": {
+    "all": ["CIS 328"],
+    "any": ["CIS 334", "COSC 336"]
+  },
+
+  "CIS 468": {
+    "all": ["MATH 231", "CIS 334"]
+  },
+
+  "ITEC 336": { "all": ["CIS 211"] },
+
+  "COSC 412": { "all": ["COSC 336"] },
+  "COSC 436": { "all": ["COSC 336"] },
+  "COSC 484": { "all": ["COSC 336"] },
+
+  "ART 365": { "all": ["ART 217"] },
+  "CIS 445": { "all": ["CIS 379"] },
+
+  "CIS 212": { "any": ["COSC 111", "PROGRAM_EXP"] },
+  "CIS 265": { "constraints": ["PROGRAM_EXP"] },
+
+  "CIS 397": {
+    "any": ["CIS 334", "COSC 336"],
+    "constraints": ["GPA_275", "INSTR_CONSENT"]
+  },
+
+  "CIS 425": { "all": ["CIS 379", "MATH 231"] },
+
+  "CIS 426": {
+    "any": ["CIS 328", "CIS 379", "ITEC 411"]
+  },
+
+  "CIS 433": {
+    "constraints": ["IS_9_UNITS", "INSTR_CONSENT"]
+  },
+
+  "CIS 436": {
+    "any": ["CIS 379", "ITEC 411"]
+  },
+
+  "CIS 440": {
+    "any": ["CIS 379", "ITEC 411"]
+  },
+
+  "CIS 495": {
+    "constraints": ["SENIOR", "INSTR_CONSENT"]
+  },
+
+  "ITEC 345": { "all": ["COSC 236", "MATH 263"] },
+  "ITEC 423": { "all": ["ITEC 231"] },
+  "ITEC 427": { "all": ["ITEC 231"] },
+
+  "ACCT 202": { "all": ["ACCT 201"] },
+  "ACCT 301": { "all": ["ACCT 202"] },
+  "ACCT 341": { "all": ["ACCT 202"] },
+  "MKTG 341": { "constraints": ["JUNIOR_SENIOR"] },
+  "MNGT 361": { "constraints": ["JUNIOR_SENIOR"] },
+  "MNGT 395": { "all": ["MNGT 361"] },
+  "HCMN 305": { "all": ["HLTH 207"] },
+
+  "CIS 328__BUSINESS_ELECTIVE": {
+    "all": ["CIS 211"],
+    "any": ["MATH 231", "ECON 205", "MATH 330"],
+    "notes": "Business elective prereq variant: CIS 211 AND (MATH 231 OR ECON 205 OR MATH 330)."
+  }
+}

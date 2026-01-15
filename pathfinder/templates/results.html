@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Towson IS PathFinder Results</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}" />
+</head>
+<body>
+  <main class="container">
+    <header class="hero">
+      <h1>Towson IS PathFinder</h1>
+      <p>Track: <strong>{{ track }}</strong></p>
+      <a class="link" href="{{ url_for('index') }}">Start over</a>
+    </header>
+
+    {% if unknown %}
+    <section class="card warning">
+      <h2>Unknown course codes</h2>
+      <p>The following entries were not found in the curriculum file and were ignored:</p>
+      <div class="tag-list">
+        {% for course in unknown %}
+        <span class="tag">{{ course }}</span>
+        {% endfor %}
+      </div>
+    </section>
+    {% endif %}
+
+    <section class="card">
+      <h2>Degree progress summary</h2>
+      <div class="summary-grid">
+        <div>
+          <p class="metric">{{ completed_count }}</p>
+          <p class="metric-label">Completed courses</p>
+        </div>
+        <div>
+          <p class="metric">{{ remaining_required }}</p>
+          <p class="metric-label">Minimum courses remaining</p>
+        </div>
+        <div>
+          <p class="metric">{{ plan.semesters | length }}</p>
+          <p class="metric-label">Estimated semesters remaining</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="card">
+      <h2>Eligible next courses</h2>
+      {% if eligible_courses %}
+      <div class="tag-list">
+        {% for course in eligible_courses %}
+        <span class="tag">{{ course }} - {{ courses[course].name }}</span>
+        {% endfor %}
+      </div>
+      {% else %}
+      <p>No eligible courses found. Review missing prerequisites below.</p>
+      {% endif %}
+    </section>
+
+    {% if constraint_warnings %}
+    <section class="card warning">
+      <h2>Constraint warnings</h2>
+      <p>These courses include standing, GPA, or consent constraints that should be reviewed.</p>
+      <ul class="warning-list">
+        {% for warning in constraint_warnings %}
+        <li>
+          <strong>{{ warning.course }}</strong>
+          {% if warning.constraints %}
+          <span class="muted">({{ warning.constraints | join(', ') }})</span>
+          {% endif %}
+          {% if warning.notes %}
+          <div class="note">{{ warning.notes | join(' ') }}</div>
+          {% endif %}
+        </li>
+        {% endfor %}
+      </ul>
+    </section>
+    {% endif %}
+
+    <section class="card">
+      <h2>Semester-by-semester plan</h2>
+      {% if plan.semesters %}
+        {% for semester in plan.semesters %}
+        <div class="semester">
+          <div class="semester-header">
+            <h3>Semester {{ loop.index }}</h3>
+            <span>{{ semester.credits }} credits</span>
+          </div>
+          <ul>
+            {% for course in semester.courses %}
+            <li>{{ course }} - {{ courses[course].name }} ({{ courses[course].credits }} cr)</li>
+            {% endfor %}
+          </ul>
+        </div>
+        {% endfor %}
+      {% else %}
+      <p>No plan could be generated with the current inputs.</p>
+      {% endif %}
+
+      {% if plan.blocked_courses %}
+      <div class="blocked">
+        <h3>Blocked courses</h3>
+        <p>These courses are still blocked by prerequisites or constraints:</p>
+        <div class="tag-list">
+          {% for course in plan.blocked_courses %}
+          <span class="tag">{{ course }}</span>
+          {% endfor %}
+        </div>
+      </div>
+      {% endif %}
+    </section>
+
+    <section class="card">
+      <h2>Remaining requirements</h2>
+      {% for group in summary %}
+      <div class="requirement-group">
+        <h3>{{ group.name }}</h3>
+        {% if group.type == 'choose_1_pair_from' %}
+          {% if group.completed %}
+          <p>Completed pair: {{ group.completed[0] | join(' + ') }}</p>
+          {% else %}
+          <p>Choose one pair from:</p>
+          <ul>
+            {% for pair in group.remaining %}
+            <li>{{ pair | join(' + ') }}</li>
+            {% endfor %}
+          </ul>
+          {% endif %}
+        {% else %}
+          {% if group.needed is not none %}
+          <p>Still need {{ group.needed }} course{{ '' if group.needed == 1 else 's' }}.</p>
+          {% endif %}
+          {% if group.remaining %}
+          <div class="tag-list">
+            {% for course in group.remaining %}
+            <span class="tag">{{ course }}</span>
+            {% endfor %}
+          </div>
+          {% else %}
+          <p>Requirement satisfied.</p>
+          {% endif %}
+        {% endif %}
+      </div>
+      {% endfor %}
+    </section>
+  </main>
+</body>
+</html>

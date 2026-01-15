@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Towson IS PathFinder</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}" />
+</head>
+<body>
+  <main class="container">
+    <header class="hero">
+      <h1>Towson IS PathFinder</h1>
+      <p>
+        Build an optimized, prerequisite-safe semester plan for Towson University Information Systems students
+        across every track.
+      </p>
+    </header>
+
+    <section class="card">
+      <h2>Plan your path</h2>
+      <form action="{{ url_for('plan') }}" method="post" class="form-grid">
+        <label class="field">
+          <span>Track</span>
+          <select name="track" required>
+            {% for option in tracks %}
+            <option value="{{ option }}">{{ option }}</option>
+            {% endfor %}
+          </select>
+        </label>
+
+        <label class="field">
+          <span>Max credits per semester</span>
+          <input type="number" name="max_credits" min="12" max="21" value="18" />
+        </label>
+
+        <label class="field full">
+          <span>Completed courses (comma-separated)</span>
+          <textarea name="completed" rows="4" placeholder="CIS 211, COSC 175, ENGL 102"></textarea>
+        </label>
+
+        <button type="submit" class="primary">Generate Plan</button>
+      </form>
+    </section>
+
+    <section class="card info">
+      <h3>How it works</h3>
+      <ul>
+        <li>Validates your completed courses against the official IS curriculum file.</li>
+        <li>Evaluates prerequisite logic and track rules before recommending courses.</li>
+        <li>Builds an optimized, credit-balanced semester schedule.</li>
+      </ul>
+      <p class="note">All prerequisite constraints (standing, GPA, consent) are displayed but not enforced.</p>
+    </section>
+  </main>
+</body>
+</html>
