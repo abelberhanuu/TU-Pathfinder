@@ -1,71 +1,112 @@
 :root {
   color-scheme: light;
+
   --primary: #004b8d;
   --accent: #d99c00;
-  --bg: #f6f7fb;
+
+  --bg-start: #eef3ff;
+  --bg-end: #f9fbff;
+
   --text: #1f2430;
   --muted: #6c7280;
-  --card: #ffffff;
-  --border: #e1e4ea;
+
+  --glass: rgba(255, 255, 255, 0.62);
+  --glass-strong: rgba(255, 255, 255, 0.78);
+  --glass-border: rgba(255, 255, 255, 0.42);
+
+  --shadow: 0 18px 50px rgba(30, 60, 90, 0.12);
+  --shadow-soft: 0 12px 30px rgba(10, 20, 40, 0.08);
 }
 
 * {
   box-sizing: border-box;
   margin: 0;
   padding: 0;
-  font-family: "Inter", "Segoe UI", Arial, sans-serif;
+  font-family: "Inter", "Segoe UI", system-ui, -apple-system, sans-serif;
 }
 
 body {
-  background: var(--bg);
+  background: radial-gradient(circle at top, var(--bg-start), var(--bg-end));
   color: var(--text);
   line-height: 1.6;
+  min-height: 100vh;
 }
 
 .container {
   max-width: 1100px;
   margin: 0 auto;
-  padding: 40px 20px 80px;
+  padding: 50px 20px 90px;
   display: flex;
   flex-direction: column;
   gap: 24px;
 }
 
+/* ===== Glass UI ===== */
+.glass-card {
+  background: var(--glass);
+  border-radius: 18px;
+  padding: 24px;
+  border: 1px solid var(--glass-border);
+  box-shadow: var(--shadow);
+  backdrop-filter: blur(12px);
+}
+
+.glass-card.soft {
+  box-shadow: var(--shadow-soft);
+}
+
+/* ===== Hero ===== */
 .hero {
-  background: linear-gradient(120deg, rgba(0, 75, 141, 0.1), rgba(217, 156, 0, 0.1));
-  border-radius: 20px;
-  padding: 28px;
   display: flex;
   flex-direction: column;
   gap: 10px;
 }
 
-.hero h1 {
-  font-size: 2.2rem;
-  color: var(--primary);
-}
-
-.hero p {
+.eyebrow {
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  font-size: 0.75rem;
   color: var(--muted);
 }
 
-.card {
-  background: var(--card);
-  border-radius: 18px;
-  padding: 24px;
-  border: 1px solid var(--border);
-  box-shadow: 0 12px 30px rgba(10, 20, 40, 0.06);
+.subtitle {
+  color: var(--muted);
+  font-size: 1.05rem;
 }
 
-.card.warning {
-  border-left: 6px solid var(--accent);
+h1 {
+  font-size: clamp(2.1rem, 3vw, 2.6rem);
+  color: var(--primary);
+}
+
+h2 {
+  font-size: 1.45rem;
+  margin-bottom: 8px;
+}
+
+h3 {
+  font-size: 1.1rem;
+  margin-top: 18px;
+  margin-bottom: 10px;
+}
+
+/* ===== Form ===== */
+.form-card {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.helper {
+  color: var(--muted);
+  font-size: 0.95rem;
 }
 
 .form-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
-  gap: 16px;
-  margin-top: 16px;
+  gap: 18px;
+  margin-top: 10px;
 }
 
 .field {
@@ -83,50 +124,101 @@ body {
 .field input,
 .field select,
 .field textarea {
-  border-radius: 10px;
-  border: 1px solid var(--border);
-  padding: 10px 12px;
+  border-radius: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.72);
+  padding: 12px 14px;
   font-size: 1rem;
+  background: rgba(255, 255, 255, 0.86);
+  color: var(--text);
+  outline: none;
 }
 
-.primary {
-  background: var(--primary);
-  color: #fff;
-  border: none;
-  padding: 12px 18px;
-  border-radius: 999px;
-  font-weight: 600;
-  cursor: pointer;
-  justify-self: start;
+.field textarea {
+  min-height: 160px;
+  resize: vertical;
 }
 
-.primary:hover {
-  background: #003d73;
+.field input:focus,
+.field select:focus,
+.field textarea:focus {
+  border-color: rgba(0, 75, 141, 0.35);
+  box-shadow: 0 0 0 4px rgba(0, 75, 141, 0.10);
 }
 
-.info ul {
-  margin-top: 12px;
-  padding-left: 20px;
-}
-
-.note {
-  margin-top: 12px;
+.field small {
+  font-weight: 400;
   color: var(--muted);
 }
 
-.tag-list {
+.toggle-group {
   display: flex;
+  gap: 16px;
   flex-wrap: wrap;
-  gap: 8px;
-  margin-top: 12px;
+  padding: 10px 0 2px;
 }
 
-.tag {
-  padding: 6px 12px;
-  background: rgba(0, 75, 141, 0.1);
-  color: var(--primary);
+.toggle-group label {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  font-weight: 600;
+  color: var(--muted);
+  user-select: none;
+}
+
+.toggle-group input {
+  width: 18px;
+  height: 18px;
+  accent-color: var(--primary);
+}
+
+/* ===== Buttons ===== */
+.button-row {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+  margin-top: 4px;
+}
+
+.primary,
+.ghost {
+  border: none;
+  padding: 12px 18px;
   border-radius: 999px;
-  font-size: 0.9rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: transform 0.15s ease, box-shadow 0.15s ease, filter 0.15s ease;
+}
+
+.primary {
+  background: linear-gradient(135deg, #004b8d, #3b7bd6);
+  color: #fff;
+  box-shadow: 0 10px 20px rgba(0, 75, 141, 0.22);
+}
+
+.primary:hover {
+  transform: translateY(-1px);
+  filter: brightness(0.98);
+}
+
+.ghost {
+  background: rgba(255, 255, 255, 0.75);
+  color: var(--primary);
+  border: 1px solid rgba(0, 75, 141, 0.18);
+}
+
+.ghost:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 10px 18px rgba(10, 20, 40, 0.08);
+}
+
+/* ===== Results ===== */
+.section-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 6px;
 }
 
 .summary-grid {
@@ -136,29 +228,69 @@ body {
   margin-top: 16px;
 }
 
-.metric {
-  font-size: 2rem;
+.pill-card {
+  background: var(--glass-strong);
+  border-radius: 14px;
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  border: 1px solid rgba(255, 255, 255, 0.65);
+}
+
+.badge {
+  align-self: flex-start;
+  background: rgba(0, 75, 141, 0.12);
+  color: var(--primary);
+  padding: 4px 10px;
+  border-radius: 999px;
+  font-size: 0.85rem;
   font-weight: 700;
+}
+
+.metric {
+  font-size: 1.25rem;
+  font-weight: 800;
   color: var(--primary);
 }
 
-.metric-label {
+.muted {
   color: var(--muted);
-  font-size: 0.95rem;
 }
 
+/* Eligible list cards */
+.eligible-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 14px;
+  margin-top: 14px;
+}
+
+/* Warnings */
+.warning {
+  border-left: 5px solid var(--accent);
+}
+
+.warning-list {
+  margin-top: 10px;
+  padding-left: 18px;
+  color: var(--muted);
+}
+
+/* Semesters */
 .semester {
   margin-top: 16px;
   padding: 16px;
   border-radius: 14px;
-  border: 1px solid var(--border);
-  background: #fafbfe;
+  border: 1px solid rgba(255, 255, 255, 0.60);
+  background: var(--glass-strong);
 }
 
 .semester-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
+  gap: 12px;
   margin-bottom: 8px;
 }
 
@@ -166,24 +298,16 @@ body {
   padding-left: 18px;
 }
 
-.blocked {
-  margin-top: 16px;
-}
-
 .requirement-group {
   margin-top: 16px;
   padding-top: 12px;
-  border-top: 1px dashed var(--border);
+  border-top: 1px dashed rgba(0, 75, 141, 0.2);
 }
 
-.warning-list {
-  margin-top: 12px;
-  padding-left: 18px;
-}
-
+/* Links */
 .link {
   color: var(--primary);
-  font-weight: 600;
+  font-weight: 700;
   text-decoration: none;
 }
 
@@ -191,6 +315,14 @@ body {
   text-decoration: underline;
 }
 
-.muted {
-  color: var(--muted);
+/* Mobile */
+@media (max-width: 600px) {
+  .section-header {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .container {
+    padding: 34px 16px 70px;
+  }
 }
