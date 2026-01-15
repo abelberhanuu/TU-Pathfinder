@@ -1,0 +1,166 @@
+{
+  "program_name": "Towson Information Systems (Catalog Year 2025-2026 and Later)",
+  "total_units_major_plan_range_note": "Total Units shown on track sheets range ~74-76; university graduation requires 120 credits overall (outside this sheet).",
+
+  "requirements_common": [
+    {
+      "name": "Required Information Systems Courses (IS Core)",
+      "type": "all_of",
+      "courses": [
+        "CIS 211",
+        "COSC 236",
+        "COSC 237",
+        "ITEC 231",
+        "CIS 239",
+        "CIS 350",
+        "CIS 377",
+        "CIS 379",
+        "CIS 435",
+        "CIS 458",
+        "CIS 479"
+      ]
+    },
+    {
+      "name": "Required Core Courses",
+      "type": "all_of",
+      "courses": ["ENGL 317", "COSC 418"]
+    },
+    {
+      "name": "IS Capstone",
+      "type": "all_of",
+      "courses": ["CIS 475"]
+    }
+  ],
+
+  "tracks": {
+    "Data Analytics": {
+      "math": {
+        "name": "Required Math Courses",
+        "type": "all_of_plus_one_of",
+        "all_of": ["MATH 231", "MATH 263"],
+        "one_of": ["MATH 211", "MATH 273"]
+      },
+      "track_requirements": [
+        {
+          "name": "Required Data Analytics Track Courses",
+          "type": "all_of",
+          "courses": ["CIS 328", "CIS 428", "CIS 468", "ITEC 336"]
+        },
+        {
+          "name": "Data Analytics Track (CIS 334 OR COSC 336)",
+          "type": "one_of",
+          "courses": ["CIS 334", "COSC 336"]
+        }
+      ],
+      "electives": {
+        "name": "Elective IS Courses (choose 2)",
+        "type": "choose_n_from",
+        "n": 2,
+        "courses": ["CIS 265", "CIS 397", "CIS 426", "CIS 433", "CIS 436", "CIS 495", "ITEC 427"]
+      }
+    },
+
+    "Systems": {
+      "math": {
+        "name": "Required Math Courses",
+        "type": "all_of",
+        "courses": ["MATH 231", "MATH 263", "MATH 273"]
+      },
+      "track_requirements": [
+        {
+          "name": "Required Systems Track Courses",
+          "type": "all_of",
+          "courses": ["CIS 328", "COSC 336", "COSC 412", "COSC 436", "COSC 484"]
+        }
+      ],
+      "electives": {
+        "name": "Elective IS Courses (choose 2)",
+        "type": "choose_n_from",
+        "n": 2,
+        "courses": [
+          "CIS 212",
+          "CIS 265",
+          "CIS 397",
+          "CIS 428",
+          "CIS 433",
+          "CIS 440",
+          "CIS 468",
+          "CIS 495",
+          "ITEC 345",
+          "ITEC 423",
+          "ITEC 427"
+        ]
+      }
+    },
+
+    "Interface Design": {
+      "math": {
+        "name": "Required Math Courses",
+        "type": "all_of_plus_one_of",
+        "all_of": ["MATH 231", "MATH 263"],
+        "one_of": ["MATH 211", "MATH 273"]
+      },
+      "track_requirements": [
+        {
+          "name": "Required Interface Design Track Courses",
+          "type": "all_of",
+          "courses": ["ART 217", "CIS 328", "CIS 334", "CIS 445"]
+        },
+        {
+          "name": "Interface Design Track (ART 102 OR ART 103)",
+          "type": "one_of",
+          "courses": ["ART 102", "ART 103"]
+        }
+      ],
+      "electives": {
+        "name": "Elective IS Courses (choose 2)",
+        "type": "choose_n_from",
+        "n": 2,
+        "courses": [
+          "DFST 101",
+          "ART 365",
+          "CIS 397",
+          "CIS 426",
+          "CIS 428",
+          "CIS 433",
+          "CIS 436",
+          "CIS 468",
+          "CIS 495"
+        ]
+      }
+    },
+
+    "Business": {
+      "math": {
+        "name": "Required Math Courses",
+        "type": "all_of_plus_one_of",
+        "all_of": ["MATH 231", "MATH 263"],
+        "one_of": ["MATH 211", "MATH 273"]
+      },
+      "track_requirements": [
+        {
+          "name": "Required Business Track Courses",
+          "type": "all_of",
+          "courses": ["CIS 334", "ACCT 201", "ECON 201"]
+        },
+        {
+          "name": "Business Track Required Course Pair (choose one pair)",
+          "type": "choose_1_pair_from",
+          "pairs": [
+            ["ACCT 202", "ACCT 301"],
+            ["ACCT 202", "ACCT 341"],
+            ["MKTG 341", "MNGT 361"],
+            ["MNGT 361", "MNGT 395"],
+            ["HLTH 207", "HCMN 305"]
+          ]
+        }
+      ],
+      "electives": {
+        "name": "Elective IS Courses (choose 2)",
+        "type": "choose_n_from",
+        "n": 2,
+        "courses": ["CIS 328", "CIS 397", "CIS 426", "CIS 428", "CIS 433", "CIS 440", "CIS 468", "CIS 495", "ITEC 427"]
+      }
+    }
+  }
+}
