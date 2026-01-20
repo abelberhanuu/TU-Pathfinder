@@ -14,7 +14,16 @@ class Course:
     name: str
     credits: int
     category: str
-    track: str
+    track: Optional[str]
+
+
+@dataclass(frozen=True)
+class CourseEntry:
+    code: str
+    credits: Optional[int]
+    term: str
+    is_tu_core: bool
+    is_repeat: bool
 
 
 def normalize_course_code(raw: str) -> str:
@@ -28,14 +37,129 @@ def load_courses() -> Dict[str, Course]:
         reader = csv.DictReader(handle)
         for row in reader:
             code = normalize_course_code(row["course_code"])
+            raw_track = row["track"].strip()
+            track = None if raw_track.lower() in {"", "all", "none"} else raw_track
             courses[code] = Course(
                 code=code,
                 name=row["course_name"].strip(),
                 credits=int(row["credits"]),
                 category=row["category"].strip(),
-                track=row["track"].strip(),
+                track=track,
             )
     return courses
+
+
+def catalog_flags(course: Course) -> Tuple[bool, bool]:
+    category = course.category.strip().lower()
+    is_core = category in {"is core", "core", "required"} or category.endswith("core")
+    is_elective = "elective" in category
+    return is_core, is_elective
+
+
+def required_course_set(track: str, requirements: Dict[str, object]) -> Set[str]:
+    groups = requirement_groups(track, requirements)
+    return set(groups["required_courses"])
+
+
+def classify_course_entry(
+    entry: CourseEntry,
+    courses: Dict[str, Course],
+    required_courses: Set[str],
+) -> str:
+    if entry.credits is None:
+        return "UNKNOWN"
+
+    catalog_course = courses.get(entry.code)
+    if catalog_course:
+        is_core, is_elective = catalog_flags(catalog_course)
+        if is_core:
+            return "MAJOR_REQUIREMENT"
+        if is_elective or catalog_course.track is not None:
+            return "MAJOR_ELECTIVE"
+        if entry.code in required_courses:
+            return "MAJOR_REQUIREMENT"
+        return "UNKNOWN"
+
+    if entry.is_tu_core:
+        return "TU_CORE"
+    return "FREE_ELECTIVE"
+
+
+def evaluate_course_entries(
+    entries: List[CourseEntry],
+    courses: Dict[str, Course],
+    required_courses: Set[str],
+) -> Dict[str, object]:
+    evaluations = []
+    warnings = []
+    seen_term_courses: Set[Tuple[str, str]] = set()
+    seen_courses: Set[str] = set()
+    total_credits_completed = 0
+    tu_core_completed = 0
+    has_unknown = False
+
+    for entry in entries:
+        label = classify_course_entry(entry, courses, required_courses)
+        counted = True
+        counted_credits = entry.credits or 0
+        notes = []
+
+        if entry.credits is None:
+            notes.append("Missing credits; counted as 0.")
+
+        term_key = (entry.code, entry.term)
+        if term_key in seen_term_courses:
+            counted = False
+            counted_credits = 0
+            notes.append("Duplicate in same term; not counted.")
+        else:
+            seen_term_courses.add(term_key)
+
+        if counted:
+            if entry.code in seen_courses:
+                if entry.is_repeat:
+                    counted = False
+                    counted_credits = 0
+                    notes.append("Repeat course; credits counted once.")
+                else:
+                    counted = False
+                    counted_credits = 0
+                    notes.append("Duplicate course; mark as repeat to keep it.")
+            else:
+                seen_courses.add(entry.code)
+
+        if label == "UNKNOWN":
+            has_unknown = True
+
+        if counted:
+            total_credits_completed += counted_credits
+            if label == "TU_CORE":
+                tu_core_completed += 1
+
+        evaluations.append(
+            {
+                "code": entry.code,
+                "term": entry.term,
+                "credits": entry.credits,
+                "is_tu_core": entry.is_tu_core,
+                "is_repeat": entry.is_repeat,
+                "label": label,
+                "counted": counted,
+                "counted_credits": counted_credits,
+                "notes": notes,
+            }
+        )
+
+        for note in notes:
+            warnings.append(f"{entry.code}: {note}")
+
+    return {
+        "evaluations": evaluations,
+        "warnings": warnings,
+        "tu_core_completed": tu_core_completed,
+        "total_credits_completed": total_credits_completed,
+        "has_unknown": has_unknown,
+    }
 
 
 def load_prereqs() -> Dict[str, Dict[str, object]]:

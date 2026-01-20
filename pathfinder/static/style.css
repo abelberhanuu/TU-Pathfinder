@@ -145,6 +145,56 @@ h3 {
   box-shadow: 0 0 0 4px rgba(0, 75, 141, 0.10);
 }
 
+.course-entry-table {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.course-entry-row {
+  display: grid;
+  grid-template-columns: 1.3fr 0.6fr 0.9fr 0.7fr 0.7fr;
+  gap: 10px;
+  align-items: center;
+}
+
+.course-entry-row.header {
+  font-size: 0.85rem;
+  color: var(--muted);
+  font-weight: 700;
+}
+
+.course-entry-row input[type="text"],
+.course-entry-row input[type="number"] {
+  border-radius: 10px;
+  border: 1px solid rgba(255, 255, 255, 0.72);
+  padding: 10px 12px;
+  font-size: 0.95rem;
+  background: rgba(255, 255, 255, 0.86);
+  color: var(--text);
+  outline: none;
+}
+
+.checkbox-cell {
+  display: flex;
+  gap: 6px;
+  align-items: center;
+  font-weight: 600;
+  color: var(--muted);
+}
+
+.checkbox-cell input {
+  width: 18px;
+  height: 18px;
+  accent-color: var(--primary);
+}
+
+.course-results {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
 .field small {
   font-weight: 400;
   color: var(--muted);
@@ -324,5 +374,9 @@ h3 {
 
   .container {
     padding: 34px 16px 70px;
+  }
+
+  .course-entry-row {
+    grid-template-columns: 1fr;
   }
 }
