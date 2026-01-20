@@ -1,11 +1,16 @@
+from typing import List, Tuple
+
 from flask import Flask, render_template, request
 
 from planner import (
+    CourseEntry,
     build_plan,
+    evaluate_course_entries,
     load_courses,
     load_prereqs,
-    parse_completed,
-    validate_completed,
+    load_requirements,
+    normalize_course_code,
+    required_course_set,
 )
 
 app = Flask(__name__)
@@ -15,14 +20,71 @@ def clamp_credits(value: int, minimum: int = 12, maximum: int = 21) -> int:
     return max(minimum, min(maximum, value))
 
 
-def build_result(track: str, max_credits: int, completed_raw: str, mode: str) -> dict:
+def parse_course_entries(form: dict) -> Tuple[List[CourseEntry], List[dict]]:
+    entries: List[CourseEntry] = []
+    entry_forms: List[dict] = []
+    count = int(form.get("course_row_count", 0))
+    for index in range(count):
+        code_raw = form.get(f"course_code_{index}", "").strip()
+        credits_raw = form.get(f"course_credits_{index}", "").strip()
+        term = form.get(f"course_term_{index}", "").strip()
+        is_tu_core = form.get(f"course_is_tu_core_{index}") == "on"
+        is_repeat = form.get(f"course_is_repeat_{index}") == "on"
+
+        if not code_raw and not credits_raw and not term:
+            continue
+
+        credits_value = None
+        if credits_raw:
+            try:
+                credits_value = int(credits_raw)
+            except ValueError:
+                credits_value = None
+
+        normalized_code = normalize_course_code(code_raw) if code_raw else ""
+        entry_forms.append(
+            {
+                "code": code_raw,
+                "credits": credits_raw,
+                "term": term,
+                "is_tu_core": is_tu_core,
+                "is_repeat": is_repeat,
+            }
+        )
+
+        if normalized_code:
+            entries.append(
+                CourseEntry(
+                    code=normalized_code,
+                    credits=credits_value,
+                    term=term,
+                    is_tu_core=is_tu_core,
+                    is_repeat=is_repeat,
+                )
+            )
+
+    return entries, entry_forms
+
+
+def build_course_entry_rows(entry_forms: List[dict], minimum_rows: int = 3) -> List[dict]:
+    rows = list(entry_forms)
+    while len(rows) < minimum_rows:
+        rows.append(
+            {"code": "", "credits": "", "term": "", "is_tu_core": False, "is_repeat": False}
+        )
+    return rows
+
+
+def build_result(track: str, max_credits: int, course_entries: List[CourseEntry], mode: str) -> dict:
     courses = load_courses()
     prereqs = load_prereqs()
+    requirements = load_requirements()
 
-    completed_list = parse_completed(completed_raw)
-    completed, unknown = validate_completed(courses, completed_list)
+    completed = {entry.code for entry in course_entries if entry.code in courses}
 
     plan_data = build_plan(track, completed, max_credits)
+    required_courses = required_course_set(track, requirements)
+    entry_results = evaluate_course_entries(course_entries, courses, required_courses)
 
     # Build display warnings (constraints are displayed but not enforced)
     warnings = []
@@ -34,6 +96,14 @@ def build_result(track: str, max_credits: int, completed_raw: str, mode: str) ->
             details.append(" ".join(warning["notes"]))
         if details:
             warnings.append(f"{warning.get('course', 'Course')}: {' | '.join(details)}")
+
+    warnings.extend(entry_results.get("warnings", []))
+    if entry_results.get("has_unknown"):
+        warnings.append("Some courses are labeled UNKNOWN. Add credits or update TU Core flag.")
+    if entry_results.get("tu_core_completed", 0) < 14:
+        warnings.append("TU Core requirement not met yet (14 courses required).")
+    if entry_results.get("total_credits_completed", 0) < 120:
+        warnings.append("Total credits requirement not met yet (120 credits required).")
 
     # Build eligible list with prereq strings for UI
     eligible = []
@@ -92,11 +162,13 @@ def build_result(track: str, max_credits: int, completed_raw: str, mode: str) ->
         "track": track,
         "max_credits": max_credits,
         "mode": mode,
-        "unknown": unknown,
         "warnings": warnings,
         "eligible": eligible,
         "plan": plan,
         "remaining_requirements": remaining_requirements,
+        "course_entries": entry_results.get("evaluations", []),
+        "tu_core_completed": entry_results.get("tu_core_completed", 0),
+        "total_credits_completed": entry_results.get("total_credits_completed", 0),
     }
 
 
@@ -106,18 +178,21 @@ def index():
 
     # defaults
     result = None
-    completed_raw = ""
+    course_entries = []
     track = "Data Analytics"
     mode = "plan"
     max_credits = 18
+    course_entry_rows = build_course_entry_rows([])
 
     if request.method == "POST":
         track = request.form.get("track", track)
         mode = request.form.get("mode", mode)
-        completed_raw = request.form.get("completed", "")
         max_credits = clamp_credits(int(request.form.get("max_credits", max_credits)))
 
-        result = build_result(track, max_credits, completed_raw, mode)
+        course_entries, entry_forms = parse_course_entries(request.form)
+        course_entry_rows = build_course_entry_rows(entry_forms)
+
+        result = build_result(track, max_credits, course_entries, mode)
 
     return render_template(
         "index.html",
@@ -125,8 +200,8 @@ def index():
         result=result,
         selected_track=track,
         selected_mode=mode,
-        completed_raw=completed_raw,
         max_credits=max_credits,
+        course_entry_rows=course_entry_rows,
     )
 
 

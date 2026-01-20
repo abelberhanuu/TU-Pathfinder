@@ -46,14 +46,63 @@
         </label>
 
         <label class="field full">
-          <span>Completed courses</span>
-          <textarea
-            name="completed"
-            rows="5"
-            placeholder="Example: CIS 211, COSC 175, ENGL 102"
-          >{{ completed_raw }}</textarea>
+          <span>Completed courses with TU Core flag</span>
+          <div class="course-entry-table">
+            <div class="course-entry-row header">
+              <span>Course code</span>
+              <span>Credits</span>
+              <span>Term</span>
+              <span>TU Core</span>
+              <span>Repeat</span>
+            </div>
+            <div id="courseEntryRows">
+              {% for entry in course_entry_rows %}
+                <div class="course-entry-row" data-index="{{ loop.index0 }}">
+                  <input
+                    type="text"
+                    name="course_code_{{ loop.index0 }}"
+                    placeholder="CIS 211"
+                    value="{{ entry.code }}"
+                  />
+                  <input
+                    type="number"
+                    name="course_credits_{{ loop.index0 }}"
+                    placeholder="3"
+                    min="0"
+                    value="{{ entry.credits }}"
+                  />
+                  <input
+                    type="text"
+                    name="course_term_{{ loop.index0 }}"
+                    placeholder="Fall 2024"
+                    value="{{ entry.term }}"
+                  />
+                  <label class="checkbox-cell">
+                    <input
+                      type="checkbox"
+                      name="course_is_tu_core_{{ loop.index0 }}"
+                      {% if entry.is_tu_core %}checked{% endif %}
+                    />
+                    <span>Yes</span>
+                  </label>
+                  <label class="checkbox-cell">
+                    <input
+                      type="checkbox"
+                      name="course_is_repeat_{{ loop.index0 }}"
+                      {% if entry.is_repeat %}checked{% endif %}
+                    />
+                    <span>Repeat</span>
+                  </label>
+                </div>
+              {% endfor %}
+            </div>
+          </div>
+          <input type="hidden" id="courseRowCount" name="course_row_count" value="{{ course_entry_rows|length }}" />
+          <div class="button-row">
+            <button type="button" class="ghost" id="addCourseRow">Add course</button>
+          </div>
           <small>
-            Enter course codes separated by commas. Spaces/casing don’t matter.
+            Use the TU Core checkbox for general education courses not in the catalog. Mark repeats to avoid duplicate credit counting.
           </small>
         </label>
 
@@ -95,20 +144,16 @@
             <p class="eyebrow">Mode</p>
             <p class="metric">{{ 'Full Plan' if result.mode == 'plan' else 'Eligible Only' }}</p>
           </div>
+          <div class="pill-card">
+            <p class="eyebrow">TU Core Completed</p>
+            <p class="metric">{{ result.tu_core_completed }} / 14</p>
+          </div>
+          <div class="pill-card">
+            <p class="eyebrow">Total Credits</p>
+            <p class="metric">{{ result.total_credits_completed }} / 120</p>
+          </div>
         </div>
       </section>
-
-      {% if result.unknown and result.unknown|length > 0 %}
-        <section class="glass-card warning">
-          <h2>Unknown course codes</h2>
-          <p class="muted">These entries weren’t found in the curriculum file and were ignored.</p>
-          <div class="tag-list">
-            {% for course in result.unknown %}
-              <span class="tag">{{ course }}</span>
-            {% endfor %}
-          </div>
-        </section>
-      {% endif %}
 
       {% if result.warnings and result.warnings|length > 0 %}
         <section class="glass-card warning">
@@ -120,6 +165,41 @@
           </ul>
         </section>
       {% endif %}
+
+      <section class="glass-card">
+        <h2>Entered courses</h2>
+        {% if result.course_entries and result.course_entries|length > 0 %}
+          <div class="course-results">
+            <div class="course-entry-row header">
+              <span>Course</span>
+              <span>Credits</span>
+              <span>Term</span>
+              <span>Label</span>
+              <span>Status</span>
+            </div>
+            {% for course in result.course_entries %}
+              <div class="course-entry-row">
+                <span>{{ course.code }}</span>
+                <span>{{ course.credits if course.credits is not none else '—' }}</span>
+                <span>{{ course.term if course.term else '—' }}</span>
+                <span class="badge">{{ course.label }}</span>
+                <span class="muted">
+                  {% if course.counted %}
+                    Counted ({{ course.counted_credits }} cr)
+                  {% else %}
+                    Not counted
+                  {% endif %}
+                </span>
+              </div>
+              {% if course.notes and course.notes|length > 0 %}
+                <p class="helper">{{ course.notes | join(' ') }}</p>
+              {% endif %}
+            {% endfor %}
+          </div>
+        {% else %}
+          <p class="muted">No course entries provided.</p>
+        {% endif %}
+      </section>
 
       <section class="glass-card">
         <div class="section-header">
@@ -227,6 +307,34 @@ Remaining Requirements
           copyButton.textContent = 'Copy failed';
           setTimeout(() => copyButton.textContent = 'Copy', 1600);
         }
+      });
+    }
+
+    const addCourseRow = document.getElementById('addCourseRow');
+    if (addCourseRow) {
+      addCourseRow.addEventListener('click', () => {
+        const rowsContainer = document.getElementById('courseEntryRows');
+        const countInput = document.getElementById('courseRowCount');
+        if (!rowsContainer || !countInput) return;
+        const index = Number(countInput.value);
+        const row = document.createElement('div');
+        row.className = 'course-entry-row';
+        row.dataset.index = index;
+        row.innerHTML = `
+          <input type="text" name="course_code_${index}" placeholder="CIS 211" />
+          <input type="number" name="course_credits_${index}" placeholder="3" min="0" />
+          <input type="text" name="course_term_${index}" placeholder="Fall 2024" />
+          <label class="checkbox-cell">
+            <input type="checkbox" name="course_is_tu_core_${index}" />
+            <span>Yes</span>
+          </label>
+          <label class="checkbox-cell">
+            <input type="checkbox" name="course_is_repeat_${index}" />
+            <span>Repeat</span>
+          </label>
+        `;
+        rowsContainer.appendChild(row);
+        countInput.value = index + 1;
       });
     }
   </script>
