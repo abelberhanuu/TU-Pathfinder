@@ -1,8 +1,10 @@
-import csv
 import json
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Dict, List, Optional, Set, Tuple
+
+import pandas as pd
+from sqlalchemy import create_engine
 
 
 DATA_DIR = Path(__file__).resolve().parent
@@ -33,19 +35,31 @@ def normalize_course_code(raw: str) -> str:
 def load_courses() -> Dict[str, Course]:
     courses_path = DATA_DIR / "courses.csv"
     courses: Dict[str, Course] = {}
-    with courses_path.open(newline="", encoding="utf-8") as handle:
-        reader = csv.DictReader(handle)
-        for row in reader:
-            code = normalize_course_code(row["course_code"])
-            raw_track = row["track"].strip()
-            track = None if raw_track.lower() in {"", "all", "none"} else raw_track
-            courses[code] = Course(
-                code=code,
-                name=row["course_name"].strip(),
-                credits=int(row["credits"]),
-                category=row["category"].strip(),
-                track=track,
-            )
+    df = pd.read_csv(
+        courses_path,
+        dtype={
+            "course_code": str,
+            "course_name": str,
+            "category": str,
+            "track": str,
+        },
+    )
+
+    engine = create_engine("sqlite:///:memory:")
+    df.to_sql("courses", engine, index=False, if_exists="replace")
+    courses_df = pd.read_sql_table("courses", engine).fillna("")
+
+    for row in courses_df.itertuples(index=False):
+        code = normalize_course_code(row.course_code)
+        raw_track = row.track.strip()
+        track = None if raw_track.lower() in {"", "all", "none"} else raw_track
+        courses[code] = Course(
+            code=code,
+            name=row.course_name.strip(),
+            credits=int(row.credits),
+            category=row.category.strip(),
+            track=track,
+        )
     return courses
 
 
