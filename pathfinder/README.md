@@ -1,75 +1,55 @@
-# Towson IS PathFinder
+# PathFinder application details
 
-Towson IS PathFinder is a Flask web application that builds optimized semester-by-semester graduation plans for Towson University Information Systems students across every track (Data Analytics, Systems, Interface Design, and Business).
+For installation and dependency setup, see the [repository README](../README.md).
 
-## Features
+## Workflow
 
-- Validates completed courses against the official curriculum input files.
-- Evaluates prerequisites and displays advisory constraints (standing, GPA, consent).
-- Builds an optimized plan that respects prerequisites, track rules, and credit caps.
-- Summarizes remaining requirements by category.
-- Classifies each entered course as TU Core, major requirement, major elective, free elective, or unknown.
-- Tracks TU Core completion (14 courses) and total credits (120 credits) without double counting.
+1. Choose one of four configured IS tracks.
+2. Enter completed courses, their credits, terms, and TU Core/repeat flags.
+3. Choose a semester credit cap; the form clamps it to **12–21 credits**.
+4. View eligible courses, remaining requirement groups, a proposed semester plan, and advisory warnings.
 
-## Project Structure
+## Data flow
 
-```
-pathfinder/
-  app.py
-  planner.py
-  courses.csv
-  prereqs.json
-  requirements.json
-  templates/
-    index.html
-    results.html
-  static/
-    style.css
-  README.md
-```
+`courses.csv → Pandas → SQLAlchemy / in-memory SQLite → Course records → prerequisite and requirement rules → Flask results`
 
-## Running the App
+The database is recreated in memory when the catalog is loaded. This implementation uses SQLite locally; PostgreSQL is not required to run the application.
 
-1. Ensure Python 3.11 is available.
-2. Install Flask:
+## Outputs
 
-```
-pip install flask
-```
+| Output | Meaning |
+| --- | --- |
+| Eligible courses | Needed courses whose configured course-prerequisite checks pass |
+| Semester plan | A heuristic ordering under the selected credit cap |
+| Remaining requirements | Required courses, elective choices, and track groups still missing |
+| Course classifications | Major requirement, major elective, TU Core, free elective, or unknown |
+| Credit summary | Counted credits and TU Core course count |
+| Warnings | Duplicates, missing credits, and advisory standing/GPA/consent conditions |
 
-3. Start the server:
+## Example checks
 
-```
-python app.py
-```
+These are documented scenarios to try manually, not an automated test report.
 
-4. Visit `http://localhost:8000` in your browser.
+| Input | Expected classification or behavior |
+| --- | --- |
+| `CIS 211`, 3 credits | `MAJOR_REQUIREMENT` |
+| `CIS 426`, 3 credits | `MAJOR_ELECTIVE` |
+| `HIST 102`, 3 credits, TU Core checked | `TU_CORE`; increments TU Core count |
+| `HIST 102`, 3 credits, TU Core unchecked | `FREE_ELECTIVE` |
+| Course with missing credits | `UNKNOWN`; counts zero credits |
+| Same course entered twice in the same term | Second entry contributes zero credits |
+| Course repeated in another term | Credits counted only once |
 
-## Data Sources
+## Files used at runtime
 
-The planner reads three local data files:
+- [courses.csv](courses.csv): 72 catalog entries, including courses and constraint/eligibility markers.
+- [prereqs.json](prereqs.json): course prerequisites and advisory conditions.
+- [requirements.json](requirements.json): common requirements and four tracks.
+- [planner.py](planner.py): data access, classification, and scheduling logic.
+- [app.py](app.py): form handling and result construction.
 
-- `courses.csv`: All course definitions, categories, and track tags.
-- `prereqs.json`: Prerequisite logic and advisory constraints.
-- `requirements.json`: Degree completion rules and track-specific requirements.
+## Interpretation
 
-## Notes
+The configured degree targets are 120 credits and 14 TU Core courses. Missing or outdated rules can change results. The interface is a planning aid; verify decisions against the applicable catalog and academic advising.
 
-- Constraint rules (standing, GPA, consent) are displayed as warnings but not enforced automatically.
-- The optimizer favors courses that unlock downstream requirements and keeps semesters within the credit cap.
-- Repeated courses must be marked as repeats to be accepted, and credits are only counted once. Duplicate entries in the same term are ignored.
-
-## Course classification examples
-
-Use these examples to sanity-check the labeling and credit counts. (Credits omitted are treated as 0 and labeled UNKNOWN.)
-
-1. **Known major requirement (catalog core course)**  
-   Input: `CIS 211`, 3 credits, not TU Core → Label: `MAJOR_REQUIREMENT`, TU Core: +0, Total credits: +3.
-2. **Known major elective (catalog elective course)**  
-   Input: `CIS 426`, 3 credits, not TU Core → Label: `MAJOR_ELECTIVE`, TU Core: +0, Total credits: +3.
-3. **Missing-from-catalog course marked TU Core**  
-   Input: `HIST 102`, 3 credits, TU Core checked → Label: `TU_CORE`, TU Core: +1, Total credits: +3.
-4. **Missing-from-catalog course not marked TU Core**  
-   Input: `HIST 102`, 3 credits, TU Core unchecked → Label: `FREE_ELECTIVE`, TU Core: +0, Total credits: +3.
-5. **Course with missing credit value**  
-   Input: `ENGL 102`, credits blank, TU Core unchecked → Label: `UNKNOWN`, TU Core: +0, Total credits: +0.
+The scheduler is heuristic. It favors downstream prerequisite unlocks and respects its numeric credit cap, but does not model actual course offerings or establish an optimal graduation date.
